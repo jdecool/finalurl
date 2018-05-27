@@ -1,0 +1,14 @@
+<html>
+    <body>
+        Result for <b>{{.OriginalURL}}</b>
+
+        <ul>
+            {{range .Redirections}}
+                <li>{{.URL}} ({{.StatusCode}})</li>
+            {{end}}
+            {{if .FinalResponse}}
+                <li>--> Final URL: <b>{{.FinalResponse.URL}}</b> ({{.FinalResponse.StatusCode}})</li>
+            {{end}}
+        </ul>
+    </body>
+</html>
