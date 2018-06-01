@@ -21,8 +21,21 @@ type Flow struct {
 	FinalResponse *Response
 }
 
-// GetRedirections returns the redirections flow from destto go to the final URL
+// A Checker is an URL redirection checker client.
+type Checker struct {
+}
+
+// DefaultChecker is the default Checker and is used by GetRedirections
+var DefaultChecker = &Checker{}
+
+// GetRedirections returns the redirections flow from dest to the final URL
+// using the default Checker
 func GetRedirections(dest string) (Flow, error) {
+	return DefaultChecker.GetRedirections(dest)
+}
+
+// GetRedirections returns the redirections flow from dest to the final URL
+func (c *Checker) GetRedirections(dest string) (Flow, error) {
 	result := Flow{
 		OriginalURL:   dest,
 		Redirections:  []Response{},
