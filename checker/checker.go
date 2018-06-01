@@ -4,9 +4,14 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+
+	"github.com/temoto/robotstxt"
 )
 
-const maxRedirection = 100
+const (
+	maxRedirection = 100
+	userAgent      = "FinalUrlBot 1.0"
+)
 
 // Response represents HTTP response
 type Response struct {
@@ -23,10 +28,13 @@ type Flow struct {
 
 // A Checker is an URL redirection checker client.
 type Checker struct {
+	CheckRobotTxt bool
 }
 
 // DefaultChecker is the default Checker and is used by GetRedirections
-var DefaultChecker = &Checker{}
+var DefaultChecker = &Checker{
+	CheckRobotTxt: true,
+}
 
 // GetRedirections returns the redirections flow from dest to the final URL
 // using the default Checker
@@ -74,6 +82,17 @@ func (c *Checker) GetRedirections(dest string) (Flow, error) {
 			urlToProcess = lastURI.Scheme + "://" + lastURI.Hostname() + urlToProcess
 		}
 
+		if c.CheckRobotTxt {
+			isAllowed, err := isRobotsTxtAllowed(urlToProcess)
+			if err != nil {
+				return result, err
+			}
+
+			if !isAllowed {
+				return result, errors.New("RobotTxt disabled crawling")
+			}
+		}
+
 		resp, err := client.Get(urlToProcess)
 		if err != nil {
 			return result, err
@@ -95,4 +114,26 @@ func (c *Checker) GetRedirections(dest string) (Flow, error) {
 	}
 
 	return result, nil
+}
+
+func isRobotsTxtAllowed(urlToProcess string) (bool, error) {
+	uri, err := url.ParseRequestURI(urlToProcess)
+	if err != nil {
+		return false, err
+	}
+
+	resp, err := http.Get(uri.Scheme + "://" + uri.Host + "/robots.txt")
+	if err != nil {
+		return false, nil
+	}
+
+	robots, err := robotstxt.FromResponse(resp)
+	resp.Body.Close()
+	if err != nil {
+		return false, err
+	}
+
+	isAllowed := robots.TestAgent(urlToProcess, userAgent)
+
+	return isAllowed, nil
 }
