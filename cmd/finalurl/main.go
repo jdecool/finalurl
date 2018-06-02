@@ -17,11 +17,13 @@ A very simple tool to get the final path of an URL
 )
 
 var (
-	displayRedirect bool
+	displayRedirect  bool
+	disableRobotsTxt bool
 )
 
 func main() {
 	flag.BoolVar(&displayRedirect, "show-redirect", false, "Show redirections")
+	flag.BoolVar(&disableRobotsTxt, "disable-robotstxt", false, "Disable robots.txt verification")
 	flag.Parse()
 
 	if flag.NArg() < 1 {
@@ -34,7 +36,11 @@ func main() {
 
 	url := flag.Arg(0)
 
-	flow, err := checker.GetRedirections(url)
+	cliChecker := &checker.Checker{
+		CheckRobotTxt: !disableRobotsTxt,
+	}
+
+	flow, err := cliChecker.GetRedirections(url)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
