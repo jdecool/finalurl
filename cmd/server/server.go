@@ -20,9 +20,15 @@ func main() {
 			return
 		}
 
-		flow, err := checker.GetRedirections(location)
+		disableRobotsTxt := r.URL.Query().Get("disable-robotstxt") != ""
+
+		c := &checker.Checker{
+			CheckRobotTxt: !disableRobotsTxt,
+		}
+
+		flow, err := c.GetRedirections(location)
 		if err != nil {
-			w.Write([]byte("Error"))
+			w.Write([]byte("Error: " + err.Error()))
 			return
 		}
 

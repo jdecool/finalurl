@@ -3,9 +3,17 @@
         <h1>Welcome to FinalUrl checker</h1>
         
         <form method="get" action="check">
-            <label for="url-input">URL</label>
-            <input type="url" name="url" id="url-input">
-            <input type="submit" value="Check !">
+            <p>
+                <label for="url-input">URL</label>
+                <input type="url" name="url" id="url-input">
+            </p>
+            <p>
+                <input type="checkbox" name="disable-robotstxt" id="disable-robotstxt-input">
+                <label for="disable-robotstxt-input">Désactiver le contrôle du robots.txt</label>
+            </p>
+            <p>
+                <input type="submit" value="Check !">
+            </p>
         </form>
     </body>
 </head>
